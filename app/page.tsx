@@ -9,6 +9,7 @@ import UploadPanel from '@/components/UploadPanel';
 import UploadHint from '@/components/UploadHint';
 import ScoringModal from '@/components/ScoringModal';
 import AuthorModal from '@/components/AuthorModal';
+import PromptShowcaseModal from '@/components/PromptShowcaseModal';
 
 interface Stats {
   totalLeads: number;
@@ -259,6 +260,7 @@ export default function Dashboard() {
       {/* Floating Buttons */}
       <ScoringModal />
       <AuthorModal />
+      <PromptShowcaseModal />
     </main>
   );
 }

@@ -7,12 +7,11 @@ const client = new OpenAI({
   baseURL: process.env.LLM_BASE_URL || 'https://api.openai.com/v1',
 });
 
-const systemPrompt = `You are an expert at extracting structured data from German car sales call transcripts.
+export const systemPrompt = `You are an expert at extracting structured data from German car sales call transcripts.
 Analyze the conversation and extract key information about the seller's intent and the vehicle.
 Always respond with valid JSON only, no markdown or explanation.`;
 
-function buildUserPrompt(transcript: string): string {
-  return `Extract the following fields from this transcript. Return ONLY valid JSON, no markdown code blocks.
+export const userPromptTemplate = `Extract the following fields from this transcript. Return ONLY valid JSON, no markdown code blocks.
 
 Required JSON format:
 {
@@ -41,7 +40,10 @@ If the transcript is empty, very short, or shows a voicemail/failed call, return
 - For failed/no answer: all fields "unclear"/null except call_outcome="failed"
 
 Transcript:
-${transcript}`;
+{transcript}`;
+
+function buildUserPrompt(transcript: string): string {
+  return userPromptTemplate.replace('{transcript}', transcript);
 }
 
 export async function extractInsights(transcript: string): Promise<ExtractedInsights> {
