@@ -1,0 +1,183 @@
+{
+  "info": {
+    "name": "Lead Scoring Dashboard API",
+    "description": "API collection for the AI-powered lead prioritization dashboard",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Leads",
+      "item": [
+        {
+          "name": "Get All Leads (Cached)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/leads",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "leads"]
+            },
+            "description": "Returns cached/stored leads without reprocessing. Fast response as it reads from stored JSON."
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"leads\": [\n    {\n      \"id\": 4030299,\n      \"name\": \"Alberto\",\n      \"lastName\": \"Strasser\",\n      \"make\": \"Tesla\",\n      \"model\": \"Model 3\",\n      \"year\": 2023,\n      \"priceEstimation\": 45000,\n      \"photoUrl\": \"https://example.com/car.jpg\",\n      \"mileage\": 15000,\n      \"status\": \"called\",\n      \"transcript\": \"...\",\n      \"callSuccessful\": true,\n      \"insights\": {\n        \"asking_price\": 45000,\n        \"willingness_to_negotiate\": \"high\",\n        \"handover_date\": \"immediate\",\n        \"car_condition\": \"excellent\",\n        \"num_owners\": 1,\n        \"sentiment\": \"positive\",\n        \"call_outcome\": \"qualified\",\n        \"key_notes\": \"Seller willing to negotiate...\"\n      },\n      \"score\": 100,\n      \"isHot\": true\n    }\n  ],\n  \"stats\": {\n    \"totalLeads\": 15,\n    \"hotLeads\": 4,\n    \"warmLeads\": 3,\n    \"coldLeads\": 8,\n    \"avgScore\": 52,\n    \"callsConnected\": 6,\n    \"qualified\": 4\n  }\n}"
+            },
+            {
+              "name": "Empty Response",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"leads\": [],\n  \"stats\": {\n    \"totalLeads\": 0,\n    \"hotLeads\": 0,\n    \"warmLeads\": 0,\n    \"coldLeads\": 0,\n    \"avgScore\": 0,\n    \"callsConnected\": 0,\n    \"qualified\": 0\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Reprocess All Leads",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/leads",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "leads"]
+            },
+            "description": "Force reprocesses all leads with AI. This calls the LLM API for each lead to extract insights. Slower but useful when you want fresh analysis."
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"message\": \"Reprocessed 15 leads\",\n  \"leads\": [...],\n  \"stats\": {\n    \"totalLeads\": 15,\n    \"hotLeads\": 4,\n    \"warmLeads\": 3,\n    \"coldLeads\": 8,\n    \"avgScore\": 52,\n    \"callsConnected\": 6,\n    \"qualified\": 4\n  }\n}"
+            },
+            {
+              "name": "No Leads Error",
+              "status": "Bad Request",
+              "code": 400,
+              "body": "{\n  \"error\": \"No leads to process\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Upload",
+      "item": [
+        {
+          "name": "Get Upload Requirements",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/upload",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "upload"]
+            },
+            "description": "Returns column requirements and format documentation for uploading files."
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"requiredColumns\": [\"id\", \"name\", \"make\", \"modell\", \"year\", \"price estimation\", \"transcript\"],\n  \"optionalColumns\": [\"last name\", \"status\", \"call successful\", \"mileage\", \"photo\"],\n  \"acceptedFormats\": [\"xlsx\", \"xls\", \"json\"],\n  \"columnDescriptions\": {\n    \"id\": \"Unique identifier for each lead\",\n    \"name\": \"First name of the contact\",\n    \"last name\": \"Last name of the contact (optional)\",\n    \"make\": \"Car manufacturer (e.g., Tesla)\",\n    \"modell\": \"Car model (e.g., Model 3)\",\n    \"year\": \"Manufacturing year\",\n    \"mileage\": \"Kilometers driven (optional)\",\n    \"price estimation\": \"Estimated price in EUR\",\n    \"status\": \"Current call status (optional)\",\n    \"transcript\": \"Full call transcript text\",\n    \"call successful\": \"Whether the call was successful (optional)\",\n    \"photo\": \"Car image URL (optional)\"\n  },\n  \"jsonFormat\": {\n    \"example\": {\n      \"id\": 1,\n      \"name\": \"John\",\n      \"lastName\": \"Doe\",\n      \"make\": \"Tesla\",\n      \"model\": \"Model 3\",\n      \"year\": 2023,\n      \"mileage\": 45000,\n      \"priceEstimation\": 35000,\n      \"transcript\": \"Call transcript here...\",\n      \"callSuccessful\": true,\n      \"photoUrl\": \"https://example.com/car.jpg\"\n    }\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Upload Excel File",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "",
+                  "description": "Excel file (.xlsx, .xls) with lead data"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/upload",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "upload"]
+            },
+            "description": "Upload and process an Excel file with lead data. The file will be parsed, validated, processed with AI, and stored."
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"message\": \"Successfully processed 15 leads\",\n  \"data\": {\n    \"totalLeads\": 15,\n    \"hotLeads\": 4,\n    \"warmLeads\": 3,\n    \"coldLeads\": 8,\n    \"avgScore\": 52,\n    \"fileName\": \"leads.xlsx\",\n    \"processedFile\": \"leads_2024-12-23_143052.json\"\n  }\n}"
+            },
+            {
+              "name": "Missing Columns Error",
+              "status": "Bad Request",
+              "code": 400,
+              "body": "{\n  \"error\": \"Missing required columns: Transcript, Price Estimation. Check if headers are in row 1 or 2.\",\n  \"stage\": \"validation\",\n  \"missingColumns\": [\"Transcript\", \"Price Estimation\"],\n  \"foundColumns\": [\"ID\", \"Name\", \"Make\", \"Model\", \"Year\"],\n  \"hint\": \"Column headers should be in the first or second row\"\n}"
+            },
+            {
+              "name": "Invalid File Type Error",
+              "status": "Bad Request",
+              "code": 400,
+              "body": "{\n  \"error\": \"Invalid file type. Please upload an Excel (.xlsx, .xls) or JSON file.\",\n  \"stage\": \"validation\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Upload JSON File",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "",
+                  "description": "JSON file with lead data array"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/upload",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "upload"]
+            },
+            "description": "Upload and process a JSON file with lead data. Accepts an array of lead objects."
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"message\": \"Successfully processed 10 leads\",\n  \"data\": {\n    \"totalLeads\": 10,\n    \"hotLeads\": 2,\n    \"warmLeads\": 4,\n    \"coldLeads\": 4,\n    \"avgScore\": 48,\n    \"fileName\": \"leads.json\",\n    \"processedFile\": \"leads_2024-12-23_150000.json\"\n  }\n}"
+            },
+            {
+              "name": "Invalid JSON Error",
+              "status": "Bad Request",
+              "code": 400,
+              "body": "{\n  \"error\": \"JSON file must contain an array of leads\",\n  \"stage\": \"validation\"\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
