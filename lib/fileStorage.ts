@@ -5,6 +5,7 @@ const DATA_DIR = path.join(process.cwd(), 'data');
 const UPLOADS_DIR = path.join(DATA_DIR, 'uploads');
 const PROCESSED_DIR = path.join(DATA_DIR, 'processed');
 const CURRENT_FILE = path.join(DATA_DIR, 'current.json');
+const SAMPLE_DATA_FILE = path.join(process.cwd(), 'sample-data', 'leads.json');
 
 // Ensure directories exist
 export function ensureDirectories(): void {
@@ -53,6 +54,7 @@ export function setCurrentData(data: unknown): void {
 // Get current active dataset
 export function getCurrentData<T>(): T | null {
   try {
+    // First try current.json (user uploaded data)
     if (fs.existsSync(CURRENT_FILE)) {
       const content = fs.readFileSync(CURRENT_FILE, 'utf-8');
       return JSON.parse(content) as T;
@@ -61,6 +63,11 @@ export function getCurrentData<T>(): T | null {
     const legacyFile = path.join(DATA_DIR, 'leads.json');
     if (fs.existsSync(legacyFile)) {
       const content = fs.readFileSync(legacyFile, 'utf-8');
+      return JSON.parse(content) as T;
+    }
+    // Fallback to sample data (for serverless deployments like Netlify/Vercel)
+    if (fs.existsSync(SAMPLE_DATA_FILE)) {
+      const content = fs.readFileSync(SAMPLE_DATA_FILE, 'utf-8');
       return JSON.parse(content) as T;
     }
     return null;
